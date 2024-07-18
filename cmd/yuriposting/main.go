@@ -29,7 +29,7 @@ func main() {
 	log.Println("Uploading media...")
 	media, err := mastodonAPI.UploadMedia(img, fileName, post.TagString)
 	if err != nil {
-		return
+		log.Fatalln("Failed to upload media:", err.Error())
 	}
 	log.Println("Media ID:", media.Id)
 	if err = mastodonAPI.CreateStatusFromPost(post, media); err != nil {
