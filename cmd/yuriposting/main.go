@@ -1,9 +1,7 @@
 package main
 
 import (
-	"io"
 	"log"
-	"os"
 	"yuriposting/internal/yuriposting"
 	"yuriposting/internal/yuriposting/danbooru"
 	"yuriposting/internal/yuriposting/mastodon"
@@ -26,21 +24,6 @@ func main() {
 	img, fileName, err := danbooruAPI.GetPostImage(post)
 	if err != nil {
 		log.Fatalln("Failed to fetch Danbooru post image:", err.Error())
-	}
-	if seeker, ok := (*img).(io.Seeker); ok {
-		file, err := os.Create(fileName)
-		if err != nil {
-			log.Fatalln("Failed to create local file:", err.Error())
-		}
-		if _, err = io.Copy(file, *img); err != nil {
-			log.Fatalln("Failed to write local file:", err.Error())
-		}
-		if err = file.Close(); err != nil {
-			log.Fatalln("Failed to close local file:", err.Error())
-		}
-		if _, err = seeker.Seek(0, io.SeekStart); err != nil {
-			log.Fatalln("Failed to seek start of img buffer:", err.Error())
-		}
 	}
 
 	log.Println("Uploading media...")
