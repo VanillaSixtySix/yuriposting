@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting"
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting/danbooru"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
 	"strconv"
-	"yuriposting/internal/yuriposting"
-	"yuriposting/internal/yuriposting/danbooru"
 )
 
 type API struct {
@@ -53,7 +53,7 @@ func (api *API) UploadMedia(media *io.ReadCloser, fileName string, tags string) 
 		return nil, err
 	}
 
-	reqUrl := "https://botsin.space/api/v2/media"
+	reqUrl := api.config.MastodonHost + "/api/v2/media"
 	req, err := http.NewRequest("POST", reqUrl, &writerBuf)
 	if err != nil {
 		return nil, err
@@ -116,7 +116,7 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 		return err
 	}
 
-	reqUrl := "https://botsin.space/api/v1/statuses"
+	reqUrl := api.config.MastodonHost + "/api/v1/statuses"
 	req, err := http.NewRequest("POST", reqUrl, &writerBuf)
 	if err != nil {
 		return err

@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting"
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting/danbooru"
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting/mastodon"
 	"log"
-	"yuriposting/internal/yuriposting"
-	"yuriposting/internal/yuriposting/danbooru"
-	"yuriposting/internal/yuriposting/mastodon"
 )
 
 func main() {

@@ -6,6 +6,7 @@ import (
 )
 
 type Config struct {
+	MastodonHost        string
 	MastodonAccessToken string
 	DanbooruUsername    string
 	DanbooruAPIKey      string

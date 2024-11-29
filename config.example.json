@@ -1,4 +1,5 @@
 {
+  "mastodonHost": "",
   "mastodonAccessToken": "",
   "danbooruUsername": "",
   "danbooruAPIKey": "",

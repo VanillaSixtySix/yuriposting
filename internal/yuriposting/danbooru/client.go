@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting"
 	_ "image/png"
 	"io"
 	"log"
 	"net/http"
 	"path"
 	"strings"
-	"yuriposting/internal/yuriposting"
 )
 
 type API struct {
