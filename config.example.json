@@ -1,8 +1,12 @@
 {
+  "postToBluesky": true,
+  "postToMastodon": true,
+  "blueskyIdentifier": "",
+  "blueskyAppPassword": "",
   "mastodonHost": "",
   "mastodonAccessToken": "",
+  "mastodonPostVisibility": "public",
   "danbooruUsername": "",
   "danbooruAPIKey": "",
-  "tags": "yuri rating:general status:active upvotes:>=10 order:random -is:banned -meme -nazi -military -war",
-  "visibility": "public"
+  "danbooruTags": "yuri rating:general status:active upvotes:>=10 order:random -is:banned -meme -nazi -military -war"
 }

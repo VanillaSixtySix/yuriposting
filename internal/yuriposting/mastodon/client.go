@@ -65,16 +65,16 @@ func (api *API) UploadMedia(media *io.ReadCloser, fileName string, tags string) 
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Status code:", res.StatusCode)
-	if res.StatusCode != 200 && res.StatusCode != 202 {
-		return nil, errors.New("status code not 200 or 202")
-	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.New("failed to read body")
 	}
 	if err = res.Body.Close(); err != nil {
 		return nil, err
+	}
+	if res.StatusCode != 200 && res.StatusCode != 202 {
+		bodyStr := string(bodyBytes)
+		return nil, errors.New("status code not 200 or 202: " + bodyStr)
 	}
 	var uploadedMedia UploadedMediaResponse
 	if err = json.Unmarshal(bodyBytes, &uploadedMedia); err != nil {
@@ -94,7 +94,7 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 	copyrights := danbooru.FormatTags(post.TagStringCopyright)
 	postFormat := fmt.Sprintf(
 		"Artist%s: %s\nMedia: %s\nSource: %s",
-		pluralize(post.TagCountArtist), artists, copyrights, source)
+		yuriposting.Pluralize(post.TagCountArtist), artists, copyrights, source)
 
 	isSensitive := post.Rating != "g"
 
@@ -103,7 +103,7 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 	if err := writer.WriteField("status", postFormat); err != nil {
 		return err
 	}
-	if err := writer.WriteField("visibility", api.config.Visibility); err != nil {
+	if err := writer.WriteField("visibility", api.config.MastodonPostVisibility); err != nil {
 		return err
 	}
 	if err := writer.WriteField("media_ids[]", uploadedMedia.Id); err != nil {
@@ -131,16 +131,16 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 	if err = res.Body.Close(); err != nil {
 		return err
 	}
-	log.Println("Status code:", res.StatusCode)
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return errors.New("failed to read body")
+	}
+	if err = res.Body.Close(); err != nil {
+		return errors.New("failed to close body")
+	}
 	if res.StatusCode != 200 {
-		return errors.New("status code not 200")
+		bodyStr := string(bodyBytes)
+		return errors.New("status code not 200: " + bodyStr)
 	}
 	return nil
-}
-
-func pluralize(num int) string {
-	if num > 1 {
-		return "s"
-	}
-	return ""
 }
