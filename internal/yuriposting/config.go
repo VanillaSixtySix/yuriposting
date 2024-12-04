@@ -6,6 +6,11 @@ import (
 )
 
 type Config struct {
+	PostToBluesky       bool
+	PostToMastodon      bool
+	BlueskyHost         string
+	BlueskyIdentifier   string
+	BlueskyAppPassword  string
 	MastodonHost        string
 	MastodonAccessToken string
 	DanbooruUsername    string
