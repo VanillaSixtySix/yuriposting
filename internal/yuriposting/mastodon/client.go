@@ -128,9 +128,6 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 	if err != nil {
 		return err
 	}
-	if err = res.Body.Close(); err != nil {
-		return err
-	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return errors.New("failed to read body: " + err.Error())
