@@ -27,7 +27,7 @@ func NewDanbooruAPI(config *yuriposting.Config) *API {
 }
 
 func (api *API) GetRandomPost() (*Post, error) {
-	tags := api.config.Tags
+	tags := api.config.DanbooruTags
 	searchTags := api.cleanParam(tags)
 	reqUrl := fmt.Sprintf("https://danbooru.donmai.us/posts.json?%s&tags=%s&limit=1", api.authParams, searchTags)
 	log.Println("URL to GET:", reqUrl)
@@ -35,13 +35,16 @@ func (api *API) GetRandomPost() (*Post, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("Status code:", res.StatusCode)
-	if res.StatusCode != 200 {
-		return nil, errors.New("status code not 200")
-	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, errors.New("failed to read body")
+	}
+	if err = res.Body.Close(); err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		bodyStr := string(bodyBytes)
+		return nil, errors.New("status code not 200: " + bodyStr)
 	}
 	posts := make([]Post, 1)
 	if err = json.Unmarshal(bodyBytes, &posts); err != nil {
@@ -50,21 +53,28 @@ func (api *API) GetRandomPost() (*Post, error) {
 	if len(posts) < 1 {
 		return nil, errors.New("no results for tags")
 	}
-	log.Println("Received", len(posts), "post(s)")
 	return &posts[0], nil
 }
 
-func (api *API) GetPostImage(post *Post) (*io.ReadCloser, string, error) {
+func (api *API) GetPostImage(post *Post) (*io.ReadCloser, string, string, error) {
 	fileName := path.Base(post.FileUrl)
 	res, err := http.Get(post.FileUrl)
 	if err != nil {
-		return nil, fileName, err
+		return nil, fileName, "", err
 	}
-	log.Println("Status code:", res.StatusCode)
-	if res.StatusCode != 200 && res.StatusCode != 202 {
-		return nil, fileName, errors.New("status code not 200 or 202")
+	contentType := res.Header.Get("Content-Type")
+	if res.StatusCode != 200 {
+		bodyBytes, err := io.ReadAll(res.Body)
+		if err != nil {
+			return nil, fileName, "", errors.New("failed to read body")
+		}
+		if err = res.Body.Close(); err != nil {
+			return nil, fileName, "", err
+		}
+		bodyStr := string(bodyBytes)
+		return nil, fileName, "", errors.New("status code not 200 or 202: " + bodyStr)
 	}
-	return &res.Body, fileName, nil
+	return &res.Body, fileName, contentType, nil
 }
 
 func (api *API) cleanParam(param string) string {

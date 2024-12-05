@@ -6,17 +6,16 @@ import (
 )
 
 type Config struct {
-	PostToBluesky       bool
-	PostToMastodon      bool
-	BlueskyHost         string
-	BlueskyIdentifier   string
-	BlueskyAppPassword  string
-	MastodonHost        string
-	MastodonAccessToken string
-	DanbooruUsername    string
-	DanbooruAPIKey      string
-	Tags                string
-	Visibility          string
+	PostToBluesky          bool
+	PostToMastodon         bool
+	BlueskyIdentifier      string
+	BlueskyAppPassword     string
+	MastodonHost           string
+	MastodonAccessToken    string
+	MastodonPostVisibility string
+	DanbooruUsername       string
+	DanbooruAPIKey         string
+	DanbooruTags           string
 }
 
 func LoadConfig(filename string) (*Config, error) {
