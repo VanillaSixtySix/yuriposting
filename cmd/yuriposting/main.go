@@ -6,6 +6,7 @@ import (
 	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting/danbooru"
 	"github.com/VanillaSixtySix/yuriposting/internal/yuriposting/mastodon"
 	"log"
+	"os"
 )
 
 func main() {
@@ -63,4 +64,8 @@ func main() {
 	}
 
 	_ = (*img).Close()
+	err = os.Remove((*img).Name())
+	if err != nil {
+		log.Fatalln("Failed to remove temporary image")
+	}
 }

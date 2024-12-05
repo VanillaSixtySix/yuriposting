@@ -10,6 +10,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -61,9 +62,9 @@ func (api *API) CreateSession() (*Session, error) {
 	return &session, err
 }
 
-func (api *API) UploadBlob(session *Session, media *io.ReadCloser, contentType string) (*Blob, error) {
+func (api *API) UploadBlob(session *Session, media *os.File, contentType string) (*Blob, error) {
 	reqUrl := "https://bsky.social/xrpc/com.atproto.repo.uploadBlob"
-	req, err := http.NewRequest("POST", reqUrl, *media)
+	req, err := http.NewRequest("POST", reqUrl, media)
 	if err != nil {
 		return nil, err
 	}

@@ -11,6 +11,7 @@ import (
 	"log"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -27,14 +28,18 @@ func NewMastodonAPI(config *yuriposting.Config) *API {
 	}
 }
 
-func (api *API) UploadMedia(media *io.ReadCloser, fileName string, tags string) (*UploadedMediaResponse, error) {
+func (api *API) UploadMedia(media *os.File, fileName string, tags string) (*UploadedMediaResponse, error) {
 	var writerBuf bytes.Buffer
 	writer := multipart.NewWriter(&writerBuf)
 	filePart, err := writer.CreateFormFile("file", fileName)
 	if err != nil {
 		return nil, err
 	}
-	if _, err = io.Copy(filePart, *media); err != nil {
+	if _, err = io.Copy(filePart, media); err != nil {
+		return nil, err
+	}
+	_, err = media.Seek(0, io.SeekStart)
+	if err != nil {
 		return nil, err
 	}
 	descriptionPart, err := writer.CreateFormField("description")

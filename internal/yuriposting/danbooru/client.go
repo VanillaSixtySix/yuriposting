@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"strings"
 )
@@ -56,25 +57,37 @@ func (api *API) GetRandomPost() (*Post, error) {
 	return &posts[0], nil
 }
 
-func (api *API) GetPostImage(post *Post) (*io.ReadCloser, string, string, error) {
+func (api *API) GetPostImage(post *Post) (*os.File, string, string, error) {
 	fileName := path.Base(post.FileUrl)
 	res, err := http.Get(post.FileUrl)
 	if err != nil {
 		return nil, fileName, "", err
 	}
+	bodyBytes, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, fileName, "", errors.New("failed to read body: " + err.Error())
+	}
+	if err = res.Body.Close(); err != nil {
+		return nil, fileName, "", err
+	}
 	contentType := res.Header.Get("Content-Type")
 	if res.StatusCode != 200 {
-		bodyBytes, err := io.ReadAll(res.Body)
-		if err != nil {
-			return nil, fileName, "", errors.New("failed to read body: " + err.Error())
-		}
-		if err = res.Body.Close(); err != nil {
-			return nil, fileName, "", err
-		}
 		bodyStr := string(bodyBytes)
 		return nil, fileName, "", errors.New("status code not 200 or 202: " + bodyStr)
 	}
-	return &res.Body, fileName, contentType, nil
+	tempFile, err := os.CreateTemp("", "yuriposting-"+fileName)
+	if err != nil {
+		return nil, fileName, "", errors.New("failed to create temp file: " + err.Error())
+	}
+	_, err = tempFile.Write(bodyBytes)
+	if err != nil {
+		return nil, fileName, "", errors.New("failed to write body bytes to temp file: " + err.Error())
+	}
+	_, err = tempFile.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, fileName, "", errors.New("failed to seek start of temp file: " + err.Error())
+	}
+	return tempFile, fileName, contentType, nil
 }
 
 func (api *API) cleanParam(param string) string {
