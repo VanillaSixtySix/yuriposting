@@ -67,7 +67,7 @@ func (api *API) UploadMedia(media *io.ReadCloser, fileName string, tags string) 
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.New("failed to read body")
+		return nil, errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
 		return nil, err
@@ -133,10 +133,10 @@ func (api *API) CreateStatusFromPost(post *danbooru.Post, uploadedMedia *Uploade
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return errors.New("failed to read body")
+		return errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
-		return errors.New("failed to close body")
+		return errors.New("failed to close body: " + err.Error())
 	}
 	if res.StatusCode != 200 {
 		bodyStr := string(bodyBytes)

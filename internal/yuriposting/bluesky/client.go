@@ -35,7 +35,7 @@ func (api *API) CreateSession() (*Session, error) {
 	}
 	body, err := json.Marshal(sessionBody)
 	if err != nil {
-		return nil, errors.New("failed to marshal JSON")
+		return nil, errors.New("failed to marshal JSON: " + err.Error())
 	}
 	bodyReader := bytes.NewReader(body)
 	reqUrl := "https://bsky.social/xrpc/com.atproto.server.createSession"
@@ -45,10 +45,10 @@ func (api *API) CreateSession() (*Session, error) {
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.New("failed to read body")
+		return nil, errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
-		return nil, errors.New("failed to close body")
+		return nil, errors.New("failed to close body: " + err.Error())
 	}
 	if res.StatusCode != 200 {
 		bodyStr := string(bodyBytes)
@@ -76,10 +76,10 @@ func (api *API) UploadBlob(session *Session, media *io.ReadCloser, contentType s
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.New("failed to read body")
+		return nil, errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
-		return nil, errors.New("failed to close body")
+		return nil, errors.New("failed to close body: " + err.Error())
 	}
 	if res.StatusCode != 200 {
 		bodyStr := string(bodyBytes)
@@ -153,7 +153,7 @@ func (api *API) CreateRecordFromPost(post *danbooru.Post, blob *Blob, session *S
 	}
 	body, err := json.Marshal(recordBody)
 	if err != nil {
-		return nil, errors.New("failed to marshal JSON")
+		return nil, errors.New("failed to marshal JSON: " + err.Error())
 	}
 	bodyReader := bytes.NewReader(body)
 	reqUrl := "https://bsky.social/xrpc/com.atproto.repo.createRecord"
@@ -170,10 +170,10 @@ func (api *API) CreateRecordFromPost(post *danbooru.Post, blob *Blob, session *S
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.New("failed to read body")
+		return nil, errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
-		return nil, errors.New("failed to close body")
+		return nil, errors.New("failed to close body: " + err.Error())
 	}
 	if res.StatusCode != 200 {
 		bodyStr := string(bodyBytes)

@@ -37,7 +37,7 @@ func (api *API) GetRandomPost() (*Post, error) {
 	}
 	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
-		return nil, errors.New("failed to read body")
+		return nil, errors.New("failed to read body: " + err.Error())
 	}
 	if err = res.Body.Close(); err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (api *API) GetPostImage(post *Post) (*io.ReadCloser, string, string, error)
 	if res.StatusCode != 200 {
 		bodyBytes, err := io.ReadAll(res.Body)
 		if err != nil {
-			return nil, fileName, "", errors.New("failed to read body")
+			return nil, fileName, "", errors.New("failed to read body: " + err.Error())
 		}
 		if err = res.Body.Close(); err != nil {
 			return nil, fileName, "", err
