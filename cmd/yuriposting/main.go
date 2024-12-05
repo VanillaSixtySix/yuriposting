@@ -61,4 +61,6 @@ func main() {
 
 		log.Println("[Bluesky] Success! URI: " + createdRecord.URI)
 	}
+
+	_ = (*img).Close()
 }

@@ -49,10 +49,6 @@ func (api *API) UploadMedia(media *io.ReadCloser, fileName string, tags string) 
 		return nil, err
 	}
 
-	if err = (*media).Close(); err != nil {
-		return nil, err
-	}
-
 	reqUrl := api.config.MastodonHost + "/api/v2/media"
 	req, err := http.NewRequest("POST", reqUrl, &writerBuf)
 	if err != nil {
