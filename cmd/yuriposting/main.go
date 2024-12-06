@@ -23,15 +23,33 @@ func main() {
 	if err != nil {
 		log.Fatalln("[Danbooru] Failed to fetch random post:", err.Error())
 	}
-	log.Println("[Danbooru] Fetching image for post ID:", post.Id)
-	img, fileName, contentType, err := danbooruAPI.GetPostImage(post)
+	postFileSizeTooLarge := post.FileSize > 1000000
+	postResTooHigh := post.ImageWidth > 4096 && post.ImageHeight > 4096
+	var (
+		lqImg       *os.File
+		hqImg       *os.File
+		fileName    string
+		contentType string
+	)
+	if postFileSizeTooLarge || postResTooHigh {
+		lqImg, fileName, contentType, err = danbooruAPI.GetPostImage(post, false)
+		if err != nil {
+			log.Fatalln("[Danbooru] Failed to fetch LQ post image:", err.Error())
+		}
+	}
+	log.Println("[Danbooru] Fetching HQ image for post ID:", post.Id)
+	hqImg, fileName, contentType, err = danbooruAPI.GetPostImage(post, true)
 	if err != nil {
-		log.Fatalln("[Danbooru] Failed to fetch post image:", err.Error())
+		log.Fatalln("[Danbooru] Failed to fetch HQ post image:", err.Error())
 	}
 
 	if config.PostToMastodon {
+		toUpload := hqImg
+		if postResTooHigh {
+			toUpload = lqImg
+		}
 		log.Println("[Mastodon] Uploading media...")
-		media, err := mastodonAPI.UploadMedia(img, fileName, post.TagString)
+		media, err := mastodonAPI.UploadMedia(toUpload, fileName, post.TagString)
 		if err != nil {
 			log.Fatalln("[Mastodon] Failed to upload media:", err.Error())
 		}
@@ -49,8 +67,12 @@ func main() {
 		if err != nil {
 			log.Fatalln("[Bluesky] Failed to create session:", err.Error())
 		}
+		toUpload := hqImg
+		if postFileSizeTooLarge {
+			toUpload = lqImg
+		}
 		log.Println("[Bluesky] Creating blob...")
-		blob, err := blueskyAPI.UploadBlob(session, img, contentType)
+		blob, err := blueskyAPI.UploadBlob(session, toUpload, contentType)
 		if err != nil {
 			log.Fatalln("[Bluesky] Failed to create blob:", err.Error())
 		}
@@ -63,9 +85,16 @@ func main() {
 		log.Println("[Bluesky] Success! URI: " + createdRecord.URI)
 	}
 
-	_ = (*img).Close()
-	err = os.Remove((*img).Name())
+	_ = (*hqImg).Close()
+	err = os.Remove((*hqImg).Name())
 	if err != nil {
-		log.Fatalln("Failed to remove temporary image")
+		log.Fatalln("Failed to remove temporary HQ image")
+	}
+	if lqImg != nil {
+		_ = (*lqImg).Close()
+		err = os.Remove((*lqImg).Name())
+		if err != nil {
+			log.Fatalln("Failed to remove temporary LQ image")
+		}
 	}
 }

@@ -57,9 +57,13 @@ func (api *API) GetRandomPost() (*Post, error) {
 	return &posts[0], nil
 }
 
-func (api *API) GetPostImage(post *Post) (*os.File, string, string, error) {
-	fileName := path.Base(post.FileUrl)
-	res, err := http.Get(post.FileUrl)
+func (api *API) GetPostImage(post *Post, fullSize bool) (*os.File, string, string, error) {
+	fileUrl := post.FileUrl
+	if !fullSize {
+		fileUrl = post.LargeFileUrl
+	}
+	fileName := path.Base(fileUrl)
+	res, err := http.Get(fileUrl)
 	if err != nil {
 		return nil, fileName, "", err
 	}
